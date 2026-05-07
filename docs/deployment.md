@@ -1,5 +1,6 @@
 # Deployment Guide
 
+> **Note on Implementation**: The project is currently deployed and tested in a **Development/Laptop Simulation** environment. The production deployment steps below (Systemd, Jetson/Pi specific configs) are deferred until physical hardware is introduced.
 ## Minor Project: Single-Node Edge Deployment
 
 ### Prerequisites

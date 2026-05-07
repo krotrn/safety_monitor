@@ -1,5 +1,7 @@
 # Hardware Setup
 
+> **Note on Implementation**: The current implementation of this project is running in **Software-Only Simulation Mode** (laptop/desktop). We have deferred the physical hardware wiring. The system uses a `FileSource` for video input and a `StubGPIOOutput` to simulate physical relay triggers in the logs. The below hardware guides are for future physical deployment.
+
 ## Recommended Hardware
 
 ### Option A: Jetson Nano 4GB (preferred for demo)

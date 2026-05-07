@@ -17,7 +17,7 @@ Get data flowing end-to-end with stubs before any module is feature-complete.
 | 4     | severity_engine              | Person lying down in test video scores >60 and saves to DB | 1 day |
 | 5     | alert_manager                | Telegram receives photo + caption when score >60           | Half day |
 | 6     | dashboard                    | Browser shows live annotated feed + auto-refreshing incident table | 1–2 days |
-| 7     | nearmiss_tracker + GPIO      | Near-miss event saves to DB; GPIO relay triggers on alert  | 1–2 days |
+| 7     | nearmiss_tracker + GPIO      | Near-miss event saves to DB; GPIO relay (simulated via Stub) triggers on alert | 1–2 days |
 
 ## Phase 0: Project Setup
 
