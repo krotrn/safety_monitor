@@ -1,6 +1,18 @@
 # Config Reference: settings.yaml
 
-Every key the system reads, what it does, and what values are valid. No magic strings anywhere else in the codebase — all config flows through here.
+Every key the system reads, what it does, and what values are valid.
+
+## Environment Variables (.env)
+
+The SafeGrid Monitor backend supports environment variables for sensitive information and connection settings. These can be defined in a `.env` file in the project root. Environment variables take precedence over settings in `config/settings.yaml`.
+
+| Variable | Description | Default (if not in settings.yaml) |
+| :--- | :--- | :--- |
+| `TELEGRAM_BOT_TOKEN` | Your Telegram Bot API token. | None |
+| `TELEGRAM_CHAT_ID` | Your Telegram Chat ID. | None |
+| `DASHBOARD_HOST` | Host for the dashboard server. | `0.0.0.0` |
+| `DASHBOARD_PORT` | Port for the dashboard server. | `8000` |
+| `DB_PATH` | Path to the SQLite database file. | `data/safety.db` |
 
 ## Full Example
 ```yaml

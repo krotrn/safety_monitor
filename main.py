@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime
 import json
 import logging
+import os
 import threading
 import time
 from queue import Empty
@@ -12,6 +13,9 @@ import cv2
 import numpy as np
 import uvicorn
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from core.camera_manager import CameraManager, FileSource, IPCameraSource, USBCameraSource
 from core.alert_manager import AlertManager, TelegramAlertChannel, StubGPIOOutput
@@ -95,8 +99,6 @@ def build_severity_profile(severity_cfg: Dict) -> Dict:
         raise RuntimeError(f"Failed to build severity profile: {exc}") from exc
 
 
-# ---------------------------------------------------------------------------
-# Frame annotation — draw bounding boxes + severity overlay
 class IncidentDeduplicator:
     def __init__(self, cooldown_seconds: int = 30):
         self.cooldown_seconds = cooldown_seconds
@@ -199,15 +201,23 @@ def main() -> None:
     tracker = ObjectTracker(tracker_config)
     severity_profile = build_severity_profile(severity_cfg)
     severity_engine = SeverityEngine(severity_profile)
-    store = DataStore(storage_cfg["db_path"], storage_cfg["snapshot_path"])
+    
+    db_path = os.environ.get("DB_PATH") or storage_cfg["db_path"]
+    snapshot_path = os.environ.get("SNAPSHOT_PATH") or storage_cfg["snapshot_path"]
+    store = DataStore(db_path, snapshot_path)
+    
     nearmiss_tracker = NearMissTracker(severity_profile, store)
     cfg = config
     channels = [StubGPIOOutput()]
-    if cfg["alerts"].get("telegram_token"):
+    
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN") or cfg["alerts"].get("telegram_token")
+    telegram_chat_id = os.environ.get("TELEGRAM_CHAT_ID") or cfg["alerts"].get("telegram_chat_id")
+
+    if telegram_token and telegram_token != "YOUR_TELEGRAM_BOT_TOKEN":
         channels.append(
             TelegramAlertChannel(
-                token=cfg["alerts"]["telegram_token"],
-                chat_id=cfg["alerts"]["telegram_chat_id"],
+                token=telegram_token,
+                chat_id=telegram_chat_id,
             )
         )
     alert_manager = AlertManager(
@@ -220,8 +230,8 @@ def main() -> None:
     # ── Dashboard startup ──
     dashboard_cfg = config.get("dashboard", {})
     dashboard_state.data_store_ref["store"] = store
-    dash_host = dashboard_cfg.get("host", "0.0.0.0")
-    dash_port = int(dashboard_cfg.get("port", 8000))
+    dash_host = os.environ.get("DASHBOARD_HOST") or dashboard_cfg.get("host", "0.0.0.0")
+    dash_port = int(os.environ.get("DASHBOARD_PORT") or dashboard_cfg.get("port", 8000))
     dash_thread = threading.Thread(
         target=uvicorn.run,
         args=(dashboard_app,),
@@ -294,7 +304,6 @@ def main() -> None:
                     int(round(severity.severity_score)),
                     severity.action_tier,
                 )
-                _push_event_nowait(severity)
             if frame_count % 30 == 0:
                 logger.info(
                     "severity heartbeat score=%d tier=%s event=%s",
@@ -310,6 +319,7 @@ def main() -> None:
                         severity.action_tier,
                         severity.event_type,
                     )
+                    _push_event_nowait(severity)
                     try:
                         snapshot_path = store.snapshot_store.save(severity.frame_id, severity.snapshot)
                         record = IncidentRecord(

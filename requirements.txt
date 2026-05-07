@@ -5,6 +5,7 @@ uvicorn[standard]
 sqlalchemy
 pyyaml
 python-telegram-bot
+python-dotenv
 RPi.GPIO; platform_system == "Linux"
 pytest
 onnx
