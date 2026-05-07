@@ -19,14 +19,14 @@ Real-time accident and incident detection on a single edge device. One camera, o
 ## Quick Start (Development — no hardware needed)
 ```bash
 # 1. Clone and enter the repository
-git clone <repo> && cd safety-monitor
+git clone https://github.com/krotrn/safety_monitor.git && cd safety_monitor
 
 # 2. Set up virtual environment
-python -m venv venv && source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Download and export the YOLO model
-python -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx')"
+python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx')"
 mv yolov8n.onnx models/
 
 # 4. Configure your environment
@@ -34,7 +34,7 @@ cp config/settings.example.yaml config/settings.yaml
 # (Optional) Edit config/settings.yaml to add your Telegram tokens or adjust camera paths
 
 # 5. Run the system
-python main.py
+python3 main.py
 
 # 6. View the Dashboard
 # Open http://localhost:8000 in your browser

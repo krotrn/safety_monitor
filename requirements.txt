@@ -1,9 +1,12 @@
-opencv-python
+opencv-python-headless
 ultralytics
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 pyyaml
 python-telegram-bot
-RPi.GPIO
+RPi.GPIO; platform_system == "Linux"
 pytest
+onnx
+onnxruntime
+onnxslim
