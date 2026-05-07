@@ -1,0 +1,53 @@
+# --- Stage 1: Builder ---
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+ENV PATH=/root/.local/bin:$PATH
+
+# Install build-essential for any C-extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+# Install dependencies to a local directory to keep the final image clean
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# --- Stage 2: Final ---
+FROM python:3.11-slim as final
+
+WORKDIR /app
+
+# Install runtime dependencies for OpenCV and system utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed python packages
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONUNBUFFERED=1
+
+# Copy source code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p data/snapshots models config
+
+# Default environment variables
+ENV DASHBOARD_HOST=0.0.0.0
+ENV DASHBOARD_PORT=8000
+ENV DB_PATH=data/safety.db
+ENV SNAPSHOT_PATH=data/snapshots
+
+EXPOSE 8000
+
+# Metadata
+LABEL maintainer="SafeGrid Team"
+LABEL version="1.0"
+
+CMD ["python", "main.py"]

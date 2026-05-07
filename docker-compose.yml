@@ -1,0 +1,65 @@
+services:
+  # --- Backend Service ---
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: safegrid-backend
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config:/app/config
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - safegrid-network
+    profiles: ["prod", "dev"]
+
+  # --- Production Dashboard ---
+  dashboard:
+    build:
+      context: ./dashboard-ui
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: safegrid-dashboard
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - safegrid-network
+    profiles: ["prod"]
+
+  # --- Development Dashboard (Hot Reloading) ---
+  dashboard-dev:
+    image: node:24-alpine
+    container_name: safegrid-dashboard-dev
+    working_dir: /app
+    volumes:
+      - ./dashboard-ui:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - WATCHPACK_POLLING=true
+    ports:
+      - "3000:3000"
+    command: sh -c "corepack enable && pnpm i && pnpm dev"
+    depends_on:
+      - backend
+    networks:
+      - safegrid-network
+    profiles: ["dev"]
+
+networks:
+  safegrid-network:
+    driver: bridge
+
+volumes:
+  data:
+  models:

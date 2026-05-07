@@ -1,0 +1,16 @@
+.git
+.gitignore
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.pytest_cache
+data
+models
+docs
+tests
+dashboard-ui/node_modules
+dashboard-ui/.next
+.pnpm-store
