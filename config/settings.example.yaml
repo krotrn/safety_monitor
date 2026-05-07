@@ -1,0 +1,87 @@
+camera:
+  source_type: file
+  device_index: 0
+  rtsp_url: null
+  file_path: tests/sample.mp4
+  source_id: cam_01
+  target_fps: 15
+  resolution: [640, 480]
+  buffer_maxsize: 30
+  frame_skip: 2
+  resize_to: [640, 480]
+  loop: true
+
+inference:
+  model_path: models/yolov8n.onnx
+  model_format: onnx
+  confidence_threshold: 0.5
+  iou_threshold: 0.45
+  target_size: [640, 640]
+  classes_of_interest:
+    - person
+    - car
+    - motorcycle
+    - truck
+    - bus
+
+tracker:
+  window_seconds: 5
+  stationary_velocity_px: 5.0
+  fps: 15
+
+runtime:
+  uptime_log_interval_seconds: 60
+
+profile: campus
+
+severity:
+  rules:
+    PersonOnGround:
+      aspect_ratio_threshold: 1.5
+      alt_aspect_ratio_threshold: 1.0
+      alt_stationary_seconds: 0.5
+      score: 50
+    PersonStationary:
+      duration_seconds: 4
+      score: 20
+    VehicleCollision:
+      overlap_required: true
+      score: 60
+    SuddenStop:
+      velocity_drop_ratio: 0.6
+      score: 30
+    PersonVehicleProximity:
+      distance_px: 80
+      score: 25
+    Nighttime:
+      start_hour: 21
+      end_hour: 5
+      score_modifier: 10
+  tiers:
+    silent: [0, 30]
+    flag: [31, 60]
+    alert: [61, 100]
+
+nearmiss:
+  proximity_px: 60
+  ttc_threshold_seconds: 2.0
+
+alerts:
+  telegram_token: "YOUR_TELEGRAM_BOT_TOKEN" # .gitignored in real usage
+  telegram_chat_id: "YOUR_TELEGRAM_CHAT_ID"
+  cooldown_seconds: 30
+  gpio_pin: 17
+  gpio_flag_duration_ms: 500
+  channels:
+    - telegram
+    - gpio
+
+storage:
+  db_path: data/safety.db
+  snapshot_path: data/snapshots
+  retention_hours: 24
+
+dashboard:
+  host: 0.0.0.0
+  port: 8000
+  feed_jpeg_quality: 75

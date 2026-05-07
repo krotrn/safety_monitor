@@ -1,0 +1,9 @@
+opencv-python==4.10.0.84
+ultralytics==8.4.47
+fastapi==0.111.0
+uvicorn==0.30.0
+sqlalchemy==2.0.30
+pyyaml==6.0.1
+python-telegram-bot==21.2
+RPi.GPIO==0.7.1
+pytest==8.2.2
