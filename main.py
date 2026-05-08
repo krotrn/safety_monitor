@@ -349,7 +349,6 @@ def main() -> None:
     except KeyboardInterrupt:
         logger.info("Uptime %s", format_uptime(time.monotonic() - start_time))
         manager.stop()
-        import os
         os._exit(0)
     finally:
         pass
